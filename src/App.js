@@ -1,5 +1,6 @@
 import './App.css';
 import { useState, useCallback, useMemo } from 'react'
+import { evaluate } from 'mathjs'
 
 function App() {
   const [displayText, setDisplayText] = useState('0'); 
@@ -104,27 +105,23 @@ function App() {
         const operators = ['+', '-', '*', '/'];
   
         if (lastInput === '' || (lastInput === '-' && character.sign !== '-')) {
-          // Replace the last operator with the new one
           return prevDisplay.slice(0, -2) + ' ' + character.sign + ' ';
         } else if (operators.includes(lastInput)) {
-          // Remove the last operator and add the new one
           return prevDisplay.slice(0, -1) + character.sign + ' ';
         } else {
-          // Append the new operator
           return prevDisplay + ' ' + character.sign + ' ';
         }
       });
   
       if (character.sign === '=') {
         try {
-          const result = new Function('return ' + displayText)();
+          const result = evaluate(displayText); 
           setDisplayText(result.toFixed(10).replace(/\.?0+$/, ''));
         } catch (error) {
           setDisplayText('Error');
         }
       }
     } else if (character.id === 'decimal') {
-      // Allow decimal input after an operator
       setDisplayText((prevDisplay) => {
         const lastInput = prevDisplay.split(' ').pop();
         return (lastInput.includes('.') || lastInput === '') ? prevDisplay : prevDisplay + '.';
